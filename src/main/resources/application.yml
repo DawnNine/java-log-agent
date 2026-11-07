@@ -1,0 +1,60 @@
+server:
+  port: 8002
+
+spring:
+  application:
+    name: log-agent
+  # 排除 Redis 自动配置
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+# =====================================================
+# 日志转发 Agent 配置
+# 部署时复制此文件为 agent-config.yml 并修改
+# 或通过命令行参数覆盖: --agent.xxx=yyy
+# =====================================================
+agent:
+  # 本机标识 (探针所在机器的标识)
+  host: ${HOSTNAME:unknown-host}
+
+  # 默认应用名称
+  app-name: ${APP_NAME:default-app}
+
+  # 日志处理器地址 (必填)
+  processor-url: ${PROCESSOR_URL:http://192.168.88.138:8082/api/logs}
+
+  # 心跳地址
+  heartbeat-url: ${HEARTBEAT_URL:http://192.168.88.138:8082/api/heartbeat}
+
+  # ---------------------------------------------------
+  # 监控的日志文件列表 (核心配置)
+  # 每个文件需要指定 path 和 app-name
+  # ---------------------------------------------------
+  watch-files:
+    # --- Tomcat 主日志 ---
+
+
+    # --- IIS W3SVC2 日志 ---
+    - path: ${LOG_PATH_5:C:/inetpub/logs/LogFiles/W3SVC2/u_ex{date:yyMMdd}.log}
+      app-name: ${APP_NAME_5:iis-w3svc2}
+
+
+  # 文件检查间隔(毫秒)，建议 500-2000
+  watch-interval: 1000
+
+  # 批量发送大小 (积攒多少条后发送)
+  batch-size: 500
+
+  # 批量发送间隔(毫秒)
+  batch-interval: 200
+
+  # 是否从文件末尾开始读取 (tail模式)
+  tail-mode: true
+
+logging:
+  level:
+    com.logmonitor: INFO
+  file:
+    name: logs/agent.log

@@ -1,0 +1,66 @@
+# =====================================================
+# 日志探针 (Log Agent) 外部配置文件
+# 将此文件放在 log-agent.jar 同级目录
+# 启动: java -jar log-agent.jar --spring.config.location=file:./agent-config.yml
+# =====================================================
+
+server:
+  port: 8002
+
+agent:
+  # 本机标识
+  host: 192.168.3.138
+
+  # 应用名称
+  app-name: tomcat-server
+
+  # 日志处理器地址 (指向 log-processor 的地址)
+  # 注意: 不要带后缀, LogSender 会自动拼接 /batch
+  processor-url: http://192.168.88.138:8082/api/logs
+
+  # 心跳地址
+  heartbeat-url: http://192.168.88.138:8082/api/heartbeat
+
+  # ========== 监控的日志文件列表 ==========
+  watch-files:
+    # --- Tomcat 主日志 (catalina) ---
+    - path: /var/log/tomcat/catalina.{date}.log
+      app-name: tomcat-catalina
+
+    # --- Tomcat 本地主机日志 ---
+    - path: /var/log/tomcat/localhost.{date}.log
+      app-name: tomcat-localhost
+
+    # --- Tomcat Host Manager 日志 ---
+    - path: /var/log/tomcat/host-manager.{date}.log
+      app-name: tomcat-host-manager
+
+    # --- Tomcat Manager 日志 ---
+    - path: /var/log/tomcat/manager.{date}.log
+      app-name: tomcat-manager
+
+    # --- Tomcat 访问日志 ---
+    - path: /var/log/tomcat/localhost_access_log.{date}.txt
+      app-name: tomcat-access
+
+    # --- Tomcat 标准输出 (持续追加, 无日期后缀) ---
+    - path: /var/log/tomcat/catalina.out
+      app-name: tomcat-stdout
+
+    # --- IIS W3SVC2 日志 (格式: u_exYYMMDD.log) ---
+    - path: C:/inetpub/logs/LogFiles/W3SVC2/u_ex{date:yyMMdd}.log
+      app-name: iis-w3svc2
+
+  # 检查间隔 (毫秒)
+  watch-interval: 1000
+
+  # 批量发送
+  batch-size: 500
+  batch-interval: 200
+
+  # tail模式: true=从末尾开始监控(只发增量), false=从头读取
+  tail-mode: true
+
+logging:
+  level:
+    com.logmonitor: INFO
